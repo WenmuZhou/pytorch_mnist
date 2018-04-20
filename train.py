@@ -6,6 +6,7 @@ from torch.autograd import Variable
 from data_loader import MyDataset
 import time
 import os
+import torch.nn as nn
 
 use_gpu = True
 if use_gpu:
@@ -21,7 +22,7 @@ batch_size = 64
 #                                                      [transforms.Resize(224), transforms.ToTensor()]))
 # train_loader = Data.DataLoader(dataset=train_data, batch_size=batch_size, shuffle=True)
 
-train_data = MyDataset(txt='/data/datasets/mnist/mnist_img/mnist_test_label.txt',data_shape=(224,224),
+train_data = MyDataset(txt='/data/datasets/mnist/mnist_img/mnist_test_label.txt',data_shape=(224,224),channel=3,
                        transform=transforms.ToTensor())
 train_loader = Data.DataLoader(dataset=train_data, batch_size=64, shuffle=True)
 
