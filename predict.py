@@ -59,8 +59,8 @@ class Pytorch_model:
 
         if self.idx2label is not None:
             label = []
-            for index in index:
-                label.append(self.idx2label[str(index)])
+            for idx in index:
+                label.append(self.idx2label[str(idx)])
             result = label, prob
         else:
             result = index, prob
