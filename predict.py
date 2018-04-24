@@ -15,9 +15,10 @@ def softmax(x):
 
 
 class Pytorch_model:
-    def __init__(self, model_path, img_shape, gpu_id=None, classes_txt=None):
+    def __init__(self, model_path, img_shape,img_channel=3, gpu_id=None, classes_txt=None):
         self.gpu_id = gpu_id
         self.img_shape = img_shape
+        self.img_channel = img_channel
         if self.gpu_id is not None and isinstance(self.gpu_id, int):
             self.use_gpu = True
         else:
@@ -36,7 +37,10 @@ class Pytorch_model:
             self.idx2label = None
 
     def predict(self, image_path, topk=1):
-        img = cv2.imread(image_path)
+        if len(img.shape) not in [2, 3] or self.img_channel not in [1, 3]:
+            raise NotImplementedError
+            
+        img = cv2.imread(image_path,0 if self.img_channel == 1 else 1)
         img = cv2.resize(img, (self.img_shape[0], self.img_shape[1]))
 
         tensor = transforms.ToTensor()(img)
