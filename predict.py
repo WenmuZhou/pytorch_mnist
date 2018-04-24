@@ -37,7 +37,7 @@ class Pytorch_model:
             self.idx2label = None
 
     def predict(self, image_path, topk=1):
-        if len(img.shape) not in [2, 3] or self.img_channel not in [1, 3]:
+        if len(self.img_shape) not in [2, 3] or self.img_channel not in [1, 3]:
             raise NotImplementedError
             
         img = cv2.imread(image_path,0 if self.img_channel == 1 else 1)
