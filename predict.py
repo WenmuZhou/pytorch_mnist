@@ -42,7 +42,8 @@ class Pytorch_model:
             
         img = cv2.imread(image_path,0 if self.img_channel == 1 else 1)
         img = cv2.resize(img, (self.img_shape[0], self.img_shape[1]))
-
+        img = img.reshape([self.img_shape[0], self.img_shape[1], self.img_channel])
+        
         tensor = transforms.ToTensor()(img)
         tensor = tensor.unsqueeze_(0)
         tensor = Variable(tensor)
