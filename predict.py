@@ -15,10 +15,16 @@ def softmax(x):
 
 
 class Pytorch_model:
-    def __init__(self, model_path, img_shape,img_channel=3, gpu_id=None, classes_txt=None):
+    def __init__(self, model_path, img_shape, img_channel=3, gpu_id=None, classes_txt=None):
         self.gpu_id = gpu_id
         self.img_shape = img_shape
         self.img_channel = img_channel
+        if self.gpu_id is not None and isinstance(self.gpu_id, int) and torch.cuda.is_available():
+            self.device = torch.device("cuda:%s" %(self.gpu_id))
+        else:
+            self.device = torch.device("cpu")
+        print(self.device)
+
         if self.gpu_id is not None and isinstance(self.gpu_id, int):
             self.use_gpu = True
         else:
@@ -36,32 +42,35 @@ class Pytorch_model:
         else:
             self.idx2label = None
 
-    def predict(self, image_path, topk=1):
+    def predict(self, img, is_numpy=False, topk=1):
         if len(self.img_shape) not in [2, 3] or self.img_channel not in [1, 3]:
             raise NotImplementedError
-            
-        img = cv2.imread(image_path,0 if self.img_channel == 1 else 1)
+
+        if not is_numpy and self.img_channel in [1, 3]: # read image
+            img = cv2.imread(img, 0 if self.img_channel == 1 else 1)
+
         img = cv2.resize(img, (self.img_shape[0], self.img_shape[1]))
+        if len(img.shape) == 2 and self.img_channel == 3:
+            img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+        elif len(img.shape) == 3 and self.img_channel == 1:
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+
         img = img.reshape([self.img_shape[0], self.img_shape[1], self.img_channel])
-        
         tensor = transforms.ToTensor()(img)
         tensor = tensor.unsqueeze_(0)
         tensor = Variable(tensor)
 
-        if self.use_gpu:
-            tensor = tensor.cuda(self.gpu_id)
-        else:
-            tensor = tensor.cpu()
-
-        outputs = F.softmax(self.net(tensor))
+        tensor = tensor.to(self.device)
+        outputs = F.softmax(self.net(tensor),dim=1)
         result = torch.topk(outputs.data[0], k=topk)
-        if self.use_gpu:
+
+        if self.device != "cpu":
             index = result[1].cpu().numpy().tolist()
             prob = result[0].cpu().numpy().tolist()
         else:
             index = result[1].numpy().tolist()
             prob = result[0].numpy().tolist()
-
         if self.idx2label is not None:
             label = []
             for idx in index:
@@ -74,14 +83,14 @@ class Pytorch_model:
 
 if __name__ == '__main__':
     img_path = r'/data/datasets/mnist/mnist_img/test/4/1.jpg'
-    model_path = 'resnet50.pkl'
+    model_path = 'resnet50_1.pkl'
 
     model = Pytorch_model(model_path, img_shape=[224, 224], classes_txt='labels.txt')
     start_cpu = time.time()
     epoch = 1
     for _ in range(epoch):
         start = time.time()
-        result = model.predict(img_path)
+        result = model.predict(img_path,topk=3)
         print('device: cpu, result:%s, time: %.4f' % (str(result), time.time() - start))
     end_cpu = time.time()
 
@@ -90,7 +99,7 @@ if __name__ == '__main__':
     start_gpu = time.time()
     for _ in range(epoch):
         start = time.time()
-        result = model1.predict(img_path)
+        result = model1.predict(img_path,topk=3)
         print('device: gpu, result:%s, time: %.4f' % (str(result), time.time() - start))
     end_gpu = time.time()
     print('cpu avg time: %.4f' % ((end_cpu - start_cpu) / epoch))
