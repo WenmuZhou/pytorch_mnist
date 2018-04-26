@@ -4,14 +4,8 @@ from torch.autograd import Variable
 from torchvision import transforms
 import time
 import cv2
+import os
 import numpy as np
-
-
-def softmax(x):
-    x = x - np.max(x)
-    exp_x = np.exp(x)
-    softmax_x = exp_x / np.sum(exp_x)
-    return softmax_x
 
 
 class Pytorch_model:
@@ -47,7 +41,10 @@ class Pytorch_model:
             raise NotImplementedError
 
         if not is_numpy and self.img_channel in [1, 3]: # read image
-            img = cv2.imread(img, 0 if self.img_channel == 1 else 1)
+            if os.path.exists(img):
+                img = cv2.imread(img, 0 if self.img_channel == 1 else 1)
+            else:
+                return 'file is not exists'
 
         img = cv2.resize(img, (self.img_shape[0], self.img_shape[1]))
         if len(img.shape) == 2 and self.img_channel == 3:
@@ -82,10 +79,11 @@ class Pytorch_model:
 
 
 if __name__ == '__main__':
-    img_path = r'/data/datasets/mnist/mnist_img/test/4/1.jpg'
-    model_path = 'resnet50_1.pkl'
-
-    model = Pytorch_model(model_path, img_shape=[224, 224], classes_txt='labels.txt')
+    img_path = '/data/datasets/mnist/test/4/4_1.png'
+    model_path = 'AlexNet.pkl'
+    img_shape = [227,227]
+    img_channel = 3
+    model = Pytorch_model(model_path, img_shape=img_shape,img_channel=img_channel, classes_txt='labels.txt')
     start_cpu = time.time()
     epoch = 1
     for _ in range(epoch):
@@ -95,7 +93,7 @@ if __name__ == '__main__':
     end_cpu = time.time()
 
     # test gpu speed
-    model1 = Pytorch_model(model_path=model_path, img_shape=[224, 224], gpu_id=0, classes_txt='labels.txt')
+    model1 = Pytorch_model(model_path=model_path, img_shape=img_shape,img_channel=img_channel, gpu_id=0, classes_txt='labels.txt')
     start_gpu = time.time()
     for _ in range(epoch):
         start = time.time()
