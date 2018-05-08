@@ -5,18 +5,18 @@ from torchvision import transforms
 from data_loader import MyDataset
 import time
 
-device = torch.device("cuda:7")
+device = torch.device("cuda:0")
 print('training with:',device)
 num_epochs = 3
 batch_size = 64
 
 # train_data = torchvision.datasets.ImageFolder(root='/data/datasets/mnist/train',
-#                                                  transform=transforms.Compose(
-#                                                      [transforms.Resize(227), transforms.ToTensor()]))
+                                                #  transform=transforms.Compose(
+                                                    #  [transforms.Resize(227), transforms.ToTensor()]))
 #训练时间更短，不知道为何
 train_data = MyDataset(txt='/data/datasets/mnist/train.txt',data_shape=(227,227),channel=3,
                        transform=transforms.ToTensor())
-train_loader = Data.DataLoader(dataset=train_data, batch_size=batch_size, shuffle=True)
+train_loader = Data.DataLoader(dataset=train_data, batch_size=batch_size, shuffle=True,num_workers=3)
 
 model = torchvision.models.AlexNet(num_classes=10)
 model = model.to(device)
