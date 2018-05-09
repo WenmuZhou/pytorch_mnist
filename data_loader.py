@@ -7,10 +7,6 @@ from PIL import Image
 import cv2
 import numpy as np
 
-def default_loader(path):
-    return Image.open(path).convert('RGB')
-
-
 class MyDataset(torch.utils.data.Dataset):
     def __init__(self, txt, data_shape,channel=3, transform=None, target_transform=None):
         '''
