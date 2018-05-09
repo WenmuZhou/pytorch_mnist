@@ -6,7 +6,7 @@ import time
 import cv2
 import os
 import numpy as np
-
+import argparse
 
 class Pytorch_model:
     def __init__(self, model_path, img_shape, img_channel=3, gpu_id=None, classes_txt=None):
@@ -79,13 +79,18 @@ class Pytorch_model:
 
 
 if __name__ == '__main__':
-    img_path = '/data/datasets/mnist/test/4/4_1.png'
-    model_path = 'AlexNet.pkl'
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-f','--file', type=str, help='test image file')
+    parser.add_argument('-m','--model', type=str, help='model used')
+    args = parser.parse_args()
+    img_path = args.file
+    model_path = args.model
     img_shape = [227,227]
     img_channel = 3
+     # test cpu speed
     model = Pytorch_model(model_path, img_shape=img_shape,img_channel=img_channel, classes_txt='labels.txt')
     start_cpu = time.time()
-    epoch = 1
+    epoch = 1000
     for _ in range(epoch):
         start = time.time()
         result = model.predict(img_path,topk=3)
