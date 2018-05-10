@@ -23,8 +23,8 @@ train_loader = Data.DataLoader(
 model = torchvision.models.AlexNet(num_classes=10)
 # 准备写tensorboard, 必须放在'.to(device)'之前，不然会报错
 writer = SummaryWriter()
-dummy_input = torch.autograd.Variable(torch.rand(1, 3, 227, 227))
-writer.add_graph(model=model, input_to_model=(dummy_input, ))
+dummy_input = torch.autograd.Variable(torch.Tensor(1, 3, 227, 227))
+writer.add_graph(model=model, input_to_model=dummy_input)
 
 model = model.to(device)
 
@@ -62,4 +62,4 @@ for epoch in range(num_epochs):
         len(train_data), train_acc / len(train_loader.dataset),
         time.time() - start, str(scheduler.get_lr()[0])))
 writer.close()
-torch.save(model, 'AlexNet1.pkl')
+# torch.save(model, 'AlexNet1.pkl')
