@@ -5,7 +5,6 @@ from torchvision import transforms
 import time
 import cv2
 import os
-import numpy as np
 import argparse
 
 class Pytorch_model:

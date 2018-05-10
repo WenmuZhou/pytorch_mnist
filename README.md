@@ -1,16 +1,24 @@
 # pytorch_mnist
 learning pytorch with mnist dataset
 
-## training
+# training
 
 ```sh
 python3 train.py
 ```
 
-## predict
+# predict
 
 ```sh
 python3 predict.py -f /data/datasets/mnist/test/0/0_1.png -m AlexNet.pkl
 ```
 
 the code Calculate 1000 times to average, if you only need to calculate once, comment it out in the code.
+
+# requirements
+* pytorch==0.4
+* torchvision
+* time
+* tensorboardX
+* cv2
+* numpy
