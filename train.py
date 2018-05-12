@@ -43,10 +43,11 @@ test_loader = Data.DataLoader(
 net = torchvision.models.AlexNet(num_classes=10)
 # 准备写tensorboard, 必须放在'.to(device)'之前，不然会报错
 writer = SummaryWriter('./log/%s' % (time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime())))
-dummy_input = torch.autograd.Variable(torch.Tensor(1, 3, 227, 227))
+net = net.to(device)
+
+dummy_input = torch.autograd.Variable(torch.Tensor(1, 3, 227, 227).to(device))
 writer.add_graph(model=net, input_to_model=dummy_input)
 
-net = net.to(device)
 
 criterion = torch.nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(net.parameters(), lr=0.001)
@@ -76,6 +77,7 @@ for epoch in range(num_epochs):
         cur_step = epoch * (train_data.__len__() / batch_size) + i
         writer.add_scalar(tag='Train/loss', scalar_value=loss.item(), global_step=cur_step)
         writer.add_scalar(tag='Train/acc', scalar_value=acc, global_step=cur_step)
+        writer.add_scalar(tag='Train/lr', scalar_value=scheduler.get_lr()[0], global_step=cur_step)
         # if i % 1 == 0:
         # print('Iteration: {}. Loss: {}. Accuracy: {}'.format(cur_step, loss.item(), acc))
     eval_acc = evaluate_accuracy(test_loader, net)
