@@ -35,16 +35,16 @@ train_data = MyDataset(txt='/data/datasets/mnist/train.txt', data_shape=(227, 22
 train_loader = Data.DataLoader(
     dataset=train_data, batch_size=batch_size, shuffle=True, num_workers=3)
 
-testdata = MyDataset(txt='/data/datasets/mnist/test.txt', data_shape=(227, 227), channel=3,
+test_data = MyDataset(txt='/data/datasets/mnist/test.txt', data_shape=(227, 227), channel=3,
                      transform=transforms.ToTensor())
 test_loader = Data.DataLoader(
-    dataset=train_data, batch_size=batch_size, shuffle=True, num_workers=3)
+    dataset=test_data, batch_size=batch_size, shuffle=True, num_workers=3)
 
 net = torchvision.models.AlexNet(num_classes=10)
-# 准备写tensorboard, 必须放在'.to(device)'之前，不然会报错
-writer = SummaryWriter('./log/%s' % (time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime())))
+net.features[0] = torch.nn.Conv2d(1, 64, kernel_size=11, stride=4, padding=2)
 net = net.to(device)
 
+writer = SummaryWriter('./log/%s' % (time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime())))
 dummy_input = torch.autograd.Variable(torch.Tensor(1, 3, 227, 227).to(device))
 writer.add_graph(model=net, input_to_model=dummy_input)
 
