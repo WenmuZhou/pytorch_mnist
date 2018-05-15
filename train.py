@@ -41,7 +41,6 @@ test_loader = Data.DataLoader(
     dataset=test_data, batch_size=batch_size, shuffle=True, num_workers=3)
 
 net = torchvision.models.AlexNet(num_classes=10)
-net.features[0] = torch.nn.Conv2d(1, 64, kernel_size=11, stride=4, padding=2)
 net = net.to(device)
 
 writer = SummaryWriter('./log/%s' % (time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime())))
